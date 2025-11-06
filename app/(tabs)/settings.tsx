@@ -5,7 +5,8 @@ import * as Notifications from 'expo-notifications';
 import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import { colors, shadows, radius } from '@/constants/theme';
+import { shadows, radius } from '@/constants/theme';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
@@ -24,8 +25,10 @@ interface Incident {
 }
 
 export default function SettingsScreen() {
+  const { colors, shadows, themeMode, setThemeMode } = useTheme();
   const { signOut, userProfile, user, fetchUserProfile } = useAuth();
   const { isActive, activate, deactivate } = useStealthMode();
+  const { biometricLoginEnabled, biometricAvailable } = useBiometricLogin();
   const [highQuality, setHighQuality] = useState(true);
   const [enableSound, setEnableSound] = useState(true);
   const [notifications, setNotifications] = useState(true);
@@ -38,9 +41,7 @@ export default function SettingsScreen() {
   );
   const [isEditingContact, setIsEditingContact] = useState(false);
   const [isTogglingStealth, setIsTogglingStealth] = useState(false);
-  const [biometricLoginEnabled, setBiometricLoginEnabled] = useState(false);
   const [isTogglingBiometricLogin, setIsTogglingBiometricLogin] = useState(false);
-  const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [panicModeEnabled, setPanicModeEnabled] = useState(false);
   const [panicGestureType, setPanicGestureType] = useState<'triple_power' | 'shake' | 'long_press'>('triple_power');
   const [isTogglingPanicMode, setIsTogglingPanicMode] = useState(false);
@@ -151,16 +152,13 @@ export default function SettingsScreen() {
   const checkBiometricAvailability = async () => {
     try {
       if (Platform.OS === 'web') {
-        setBiometricAvailable(false);
         return;
       }
 
       const hasHardware = await LocalAuthentication.hasHardwareAsync();
       const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-      setBiometricAvailable(hasHardware && isEnrolled);
     } catch (error) {
       console.error('Error checking biometric availability:', error);
-      setBiometricAvailable(false);
     }
   };
 
@@ -199,7 +197,7 @@ export default function SettingsScreen() {
         return;
       }
 
-      setBiometricLoginEnabled(value);
+      // Biometric login enabled is managed by BiometricLoginProvider context
     } catch (error) {
       console.error('Error toggling biometric login:', error);
       Alert.alert('Error', 'Failed to update biometric login setting');
@@ -211,7 +209,6 @@ export default function SettingsScreen() {
   const loadBiometricLoginSetting = async () => {
     try {
       if (!user?.id) {
-        setBiometricLoginEnabled(false);
         return;
       }
 
@@ -223,11 +220,10 @@ export default function SettingsScreen() {
 
       if (error) {
         console.error('Error loading biometric login setting:', error);
-        setBiometricLoginEnabled(false);
         return;
       }
 
-      setBiometricLoginEnabled(data?.biometric_login_enabled || false);
+      // Biometric login enabled is managed by BiometricLoginProvider context
     } catch (error) {
       console.error('Error loading biometric login setting:', error);
     }
@@ -365,6 +361,8 @@ export default function SettingsScreen() {
     setIncidentAlerts(value);
   };
 
+  const styles = getStyles(colors, shadows);
+
   return (
     <KeyboardAvoidingView 
       style={styles.container} 
@@ -470,7 +468,41 @@ export default function SettingsScreen() {
         </View>
         
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recording</Text>
+          <Text style={styles.sectionTitle}>Appearance</Text>
+          <View style={styles.settingItem}>
+            <View style={styles.settingInfo}>
+              <MaterialIcons name="dark-mode" size={24} color={colors.accent} />
+              <View style={styles.settingTextContainer}>
+                <Text style={styles.settingText}>Theme</Text>
+                <Text style={styles.settingSubtext}>
+                  {themeMode === 'system' 
+                    ? 'Follow system settings' 
+                    : themeMode === 'light' 
+                    ? 'Light mode' 
+                    : 'Dark mode'}
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={styles.themeSelector}
+              onPress={() => {
+                const modes: Array<'light' | 'dark' | 'system'> = ['light', 'dark', 'system'];
+                const currentIndex = modes.indexOf(themeMode);
+                const nextIndex = (currentIndex + 1) % modes.length;
+                setThemeMode(modes[nextIndex]);
+              }}
+              activeOpacity={0.7}>
+              <MaterialIcons 
+                name={themeMode === 'light' ? 'light-mode' : themeMode === 'dark' ? 'dark-mode' : 'brightness-auto'} 
+                size={24} 
+                color={colors.accent} 
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Privacy</Text>
           <View style={styles.settingItem}>
             <View style={styles.settingInfo}>
               <MaterialIcons name="video-label" size={24} color={colors.accent} />
@@ -664,7 +696,7 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, shadows: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.primary,
@@ -1054,5 +1086,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     fontFamily: 'Inter-SemiBold',
+  },
+  themeSelector: {
+    padding: 8,
+    borderRadius: radius.md,
   },
 });

@@ -1,7 +1,25 @@
-export const colors = {
-  primary: '#1B2D45',    // Deep navy background
-  secondary: '#2D4059',  // Lighter navy for cards
-  accent: '#EA5455',     // Professional red accent
+// Light and Dark color palettes
+export const lightColors = {
+  primary: '#FFFFFF',       // White background
+  secondary: '#F5F7FA',     // Light gray for cards
+  accent: '#EA5455',        // Professional red accent (same)
+  text: {
+    primary: '#1B2D45',     // Dark navy text
+    secondary: '#4A5568',   // Medium gray text
+    muted: '#718096'        // Light gray text
+  },
+  status: {
+    success: '#2ECC71',
+    warning: '#F1C40F',
+    error: '#EA5455'
+  },
+  border: '#E2E8F0',
+};
+
+export const darkColors = {
+  primary: '#1B2D45',       // Deep navy background
+  secondary: '#2D4059',     // Lighter navy for cards
+  accent: '#EA5455',        // Professional red accent
   text: {
     primary: '#FFFFFF',
     secondary: '#B0B6BE',
@@ -11,8 +29,12 @@ export const colors = {
     success: '#2ECC71',
     warning: '#F1C40F',
     error: '#EA5455'
-  }
+  },
+  border: '#2D4059',
 };
+
+export const colors = darkColors; // Default to dark for backward compatibility
+
 export const spacing = {
   xs: 4,
   sm: 8,
@@ -62,65 +84,35 @@ export const shadows = {
   },
 };
 
-// export const colors = {
-//   primary: '#1B2D45', // Dark blue
-//   secondary: '#2A4A73', // Medium blue
-//   accent: '#F2994A', // Orange
-//   background: {
-//     primary: '#1B2D45',
-//     secondary: '#2A4A73',
-//     tertiary: '#3A5F8A',
-//   },
-//   text: {
-//     primary: '#FFFFFF',
-//     secondary: '#E0E0E0',
-//     muted: '#A0A0A0',
-//   },
-//   status: {
-//     success: '#4CAF50',
-//     warning: '#FFC107',
-//     error: '#F44336',
-//     info: '#2196F3',
-//   },
-//   border: '#3A5F8A',
-// };
-
-// export const spacing = {
-//   xs: 4,
-//   sm: 8,
-//   md: 16,
-//   lg: 24,
-//   xl: 32,
-// };
-
-// export const radius = {
-//   sm: 4,
-//   md: 8,
-//   lg: 12,
-//   xl: 16,
-//   round: 999,
-// };
-
-// export const shadows = {
-//   sm: {
-//     shadowColor: '#000',
-//     shadowOffset: { width: 0, height: 1 },
-//     shadowOpacity: 0.2,
-//     shadowRadius: 2,
-//     elevation: 2,
-//   },
-//   md: {
-//     shadowColor: '#000',
-//     shadowOffset: { width: 0, height: 2 },
-//     shadowOpacity: 0.3,
-//     shadowRadius: 4,
-//     elevation: 4,
-//   },
-//   lg: {
-//     shadowColor: '#000',
-//     shadowOffset: { width: 0, height: 4 },
-//     shadowOpacity: 0.4,
-//     shadowRadius: 6,
-//     elevation: 8,
-//   },
-// };
+export const lightShadows = {
+  sm: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  md: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  lg: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+};

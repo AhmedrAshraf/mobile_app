@@ -13,7 +13,8 @@ import {
   Alert,
 } from 'react-native';
 import * as Location from 'expo-location';
-import { colors, shadows, radius } from '@/constants/theme';
+import { radius } from '@/constants/theme';
+import { useTheme } from '@/contexts/ThemeContext';
 import { MaterialIcons } from '@expo/vector-icons';
 
 type Attorney = {
@@ -69,6 +70,8 @@ const initialState: LegalHelpState = {
 };
 
 export default function LegalHelpScreen() {
+  const { colors, shadows } = useTheme();
+  const styles = getStyles(colors, shadows);
   const [state, setState] = useState<LegalHelpState>(() => ({
     ...initialState,
     attorneys: [],
@@ -505,7 +508,7 @@ export default function LegalHelpScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, shadows: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.primary,

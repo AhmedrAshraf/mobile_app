@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, Animated, Easing, Alert, ActivityIndicator, AppState } from 'react-native';
 import { useCameraPermissions, CameraView } from 'expo-camera';
-import { colors, shadows, radius } from '@/constants/theme';
+import { radius } from '@/constants/theme';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Audio } from 'expo-av';
 import { supabase } from '@/lib/supabase';
 import { useFocusEffect } from '@react-navigation/native';
@@ -13,6 +14,8 @@ const CLOUDINARY_CLOUD_NAME = 'do0qfrr5y';
 const CLOUDINARY_UPLOAD_PRESET = 'desist';
 
 export default function RecordScreen() {
+  const { colors, shadows } = useTheme();
+  const styles = getStyles(colors, shadows);
   const [permission, requestPermission] = useCameraPermissions();
   const [isRecording, setIsRecording] = useState(false);
   const [isLongPressing, setIsLongPressing] = useState(false);
@@ -541,7 +544,7 @@ export default function RecordScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, shadows: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.primary,

@@ -4,7 +4,8 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { colors, shadows, radius } from '@/constants/theme';
+import { radius } from '@/constants/theme';
+import { useTheme } from '@/contexts/ThemeContext';
 import { MaterialIcons } from '@expo/vector-icons';
 
 type Document = {
@@ -26,6 +27,8 @@ const DOCUMENT_TYPES = [
 ];
 
 export default function DocumentsScreen() {
+  const { colors, shadows } = useTheme();
+  const styles = getStyles(colors, shadows);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [selectedType, setSelectedType] = useState<string>('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -286,7 +289,7 @@ export default function DocumentsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, shadows: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.primary,

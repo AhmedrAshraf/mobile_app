@@ -1,196 +1,218 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Platform, Animated } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { colors, shadows, radius } from '@/constants/theme';
+import { useEffect, useRef } from 'react';
+import { BlurView } from 'expo-blur';
 
 const { width } = Dimensions.get('window');
-const isNarrowScreen = width < 768;
 
 // Export the tab bar height so other components can use it for padding
-export const TAB_BAR_HEIGHT = isNarrowScreen ? 130 : 70; // Two-tier layout is taller
+export const TAB_BAR_HEIGHT = Platform.OS === 'ios' ? 90 : 75;
 
 const tabs = [
-  { name: '/', title: 'Home', icon: 'home' as const },
-  { name: 'record', title: 'Record', icon: 'videocam' as const },
-  { name: 'incidents', title: 'Incidents', icon: 'warning' as const },
-  { name: 'badges', title: 'Badges', icon: 'emoji-events' as const },
-  { name: 'legal-help', title: 'Legal Help', icon: 'gavel' as const },
-  { name: 'documents', title: 'Documents', icon: 'description' as const },
-  { name: 'settings', title: 'Settings', icon: 'settings' as const },
+  { name: '/', title: 'Home', icon: 'home' as const, iconType: 'material' as const },
+  { name: 'record', title: 'Record', icon: 'videocam' as const, iconType: 'ionicons' as const },
+  { name: 'incidents', title: 'Incidents', icon: 'event-note' as const, iconType: 'material' as const },
+  { name: 'documents', title: 'Documents', icon: 'description' as const, iconType: 'material' as const },
+  { name: 'settings', title: 'Settings', icon: 'settings' as const, iconType: 'material' as const },
 ];
 
 export default function CustomTabBar() {
   const router = useRouter();
   const pathname = usePathname();
-  
+  const animatedValues = useRef(
+    tabs.map(() => new Animated.Value(0))
+  ).current;
+
+  useEffect(() => {
+    tabs.forEach((tab, index) => {
+      const isActive = isTabActive(tab.name);
+      Animated.spring(animatedValues[index], {
+        toValue: isActive ? 1 : 0,
+        useNativeDriver: true,
+        tension: 300,
+        friction: 20,
+      }).start();
+    });
+  }, [pathname]);
+
   const getTabRoute = (tabName: string) => {
+    if (tabName === '/') return '/(tabs)/';
     return `/(tabs)/${tabName}`;
   };
-  
-  const isActive = (tabName: string) => {
+
+  const isTabActive = (tabName: string) => {
     const route = getTabRoute(tabName);
+    if (tabName === '/') {
+      return pathname === '/(tabs)/' || pathname === '/';
+    }
     return pathname === route || pathname.startsWith(route + '/');
   };
 
   const navigateToTab = (tabName: string) => {
-    // Navigate directly to the tab's root screen
     router.replace(getTabRoute(tabName) as any);
   };
 
-  const renderIcon = (iconName: string, size: number, color: string) => {
-    // Use Ionicons for videocam instead of camera
-    if (iconName === 'videocam') {
-      return <Ionicons name="videocam" size={size} color={color} />;
+  const renderIcon = (iconName: string, iconType: 'material' | 'ionicons', size: number, color: string, isActive: boolean) => {
+    const iconSize = isActive ? size + 2 : size;
+    
+    if (iconType === 'ionicons') {
+      return <Ionicons name={iconName as any} size={iconSize} color={color} />;
     }
-    // Use type assertion to tell TypeScript this is a valid MaterialIcons name
-    return <MaterialIcons name={iconName as any} size={size} color={color} />;
+    return <MaterialIcons name={iconName as any} size={iconSize} color={color} />;
   };
 
-  if (isNarrowScreen) {
-    // Two-tier layout for narrow screens
-    const firstRow = tabs.slice(0, 4);
-    const secondRow = tabs.slice(4);
-    
-    return (
-      <View style={styles.container}>
-        <View style={styles.twoTierContainer}>
-          <View style={styles.tabRow}>
-            {firstRow.map(tab => (
-              <TouchableOpacity
-                key={tab.name}
-                style={[styles.tabButton, isActive(tab.name) && styles.activeTabButton]}
-                onPress={() => navigateToTab(tab.name)}>
-                {renderIcon(
-                  tab.icon,
-                  24,
-                  isActive(tab.name) ? colors.accent : colors.text.muted
-                )}
-                <Text 
-                  style={[
-                    styles.tabLabel, 
-                    isActive(tab.name) && styles.activeTabLabel
-                  ]}>
-                  {tab.title}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <View style={styles.tabRow}>
-            {secondRow.map(tab => (
-              <TouchableOpacity
-                key={tab.name}
-                style={[styles.tabButton, isActive(tab.name) && styles.activeTabButton]}
-                onPress={() => navigateToTab(tab.name)}>
-                {renderIcon(
-                  tab.icon,
-                  24,
-                  isActive(tab.name) ? colors.accent : colors.text.muted
-                )}
-                <Text 
-                  style={[
-                    styles.tabLabel, 
-                    isActive(tab.name) && styles.activeTabLabel
-                  ]}>
-                  {tab.title}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      </View>
-    );
-  }
-  
-  // Scrollable layout for wider screens
-  return (
-    <View style={styles.container}>
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContainer}>
-        {tabs.map(tab => (
+  const TabBarContent = () => (
+    <View style={styles.content}>
+      {tabs.map((tab, index) => {
+        const isActive = isTabActive(tab.name);
+        const scale = animatedValues[index].interpolate({
+          inputRange: [0, 1],
+          outputRange: [1, 1.05],
+        });
+        const opacity = animatedValues[index].interpolate({
+          inputRange: [0, 1],
+          outputRange: [0.6, 1],
+        });
+
+        return (
           <TouchableOpacity
             key={tab.name}
-            style={[styles.scrollableTabButton, isActive(tab.name) && styles.activeScrollableTabButton]}
-            onPress={() => navigateToTab(tab.name)}>
-            {renderIcon(
-              tab.icon,
-              28,
-              isActive(tab.name) ? colors.accent : colors.text.muted
-            )}
-            <Text 
+            style={styles.tabButton}
+            onPress={() => navigateToTab(tab.name)}
+            activeOpacity={0.8}>
+            <Animated.View
               style={[
-                styles.scrollableTabLabel, 
-                isActive(tab.name) && styles.activeTabLabel
+                styles.tabContent,
+                { transform: [{ scale }], opacity },
               ]}>
-              {tab.title}
-            </Text>
+              {/* {isActive && <View style={styles.activeIndicator} />} */}
+              <View style={[styles.iconContainer, isActive && styles.activeIconContainer]}>
+                {renderIcon(
+                  tab.icon,
+                  tab.iconType,
+                  24,
+                  isActive ? colors.accent : colors.text.muted,
+                  isActive
+                )}
+              </View>
+              <Text
+                style={[
+                  styles.tabLabel,
+                  isActive && styles.activeTabLabel,
+                ]}
+                numberOfLines={1}>
+                {tab.title}
+              </Text>
+            </Animated.View>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
+        );
+      })}
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      {Platform.OS === 'ios' ? (
+        <BlurView intensity={95} tint="dark" style={styles.blurContainer}>
+          <TabBarContent />
+        </BlurView>
+      ) : (
+        <View style={styles.androidContainer}>
+          <TabBarContent />
+        </View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.primary,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: TAB_BAR_HEIGHT,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -3 },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
+      },
+      android: {
+        elevation: 12,
+      },
+    }),
+  },
+  blurContainer: {
+    flex: 1,
+    backgroundColor: `${colors.secondary}E8`,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    overflow: 'hidden',
+  },
+  androidContainer: {
+    flex: 1,
+    backgroundColor: colors.secondary,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
     borderTopWidth: 1,
-    borderTopColor: colors.secondary,
-    ...shadows.sm,
-    height: Platform.OS === 'ios' ? 170 : 190,
+    borderTopColor: `${colors.text.muted}15`,
   },
-  twoTierContainer: {
-    paddingVertical: 5,
-  },
-  tabRow: {
+  content: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: 8,
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    paddingTop: Platform.OS === 'ios' ? 12 : 8,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 12,
   },
   tabButton: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 4,
+    minHeight: 60,
+  },
+  tabContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    width: '100%',
+    paddingHorizontal: 4,
+  },
+  activeIndicator: {
+    position: 'absolute',
+    top: -6,
+    width: 36,
+    height: 3,
+    backgroundColor: colors.accent,
+    borderRadius: radius.sm,
+    ...shadows.sm,
+  },
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+    padding: 8,
     borderRadius: radius.md,
   },
-  activeTabButton: {
-    backgroundColor: `${colors.accent}15`,
+  activeIconContainer: {
+    backgroundColor: `${colors.accent}25`,
   },
   tabLabel: {
+    fontSize: 10,
     color: colors.text.muted,
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: '500',
     fontFamily: 'Inter-Medium',
+    marginTop: 2,
+    textAlign: 'center',
   },
   activeTabLabel: {
     color: colors.accent,
-    fontWeight: '600',
     fontFamily: 'Inter-SemiBold',
-  },
-  scrollContainer: {
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-  },
-  scrollableTabButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    marginHorizontal: 5,
-    borderRadius: radius.lg,
-    minWidth: 90,
-  },
-  activeScrollableTabButton: {
-    backgroundColor: `${colors.accent}15`,
-  },
-  scrollableTabLabel: {
-    color: colors.text.muted,
-    fontSize: 14,
-    marginTop: 5,
-    fontWeight: '500',
-    fontFamily: 'Inter-Medium',
+    fontSize: 10,
   },
 });

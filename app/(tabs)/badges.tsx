@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
-import { colors, shadows, radius } from '@/constants/theme';
+import { radius } from '@/constants/theme';
+import { useTheme } from '@/contexts/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BadgeUnlockModal from '@/components/BadgeUnlockModal';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -17,20 +18,19 @@ type Badge = {
   };
 };
 
-// Default badge data
 const DEFAULT_BADGES: Badge[] = [
   {
     id: 'founding_protector',
     name: 'Founding Protector',
     description: 'One of the first to join and complete safety training',
-    icon: <MaterialIcons name="shield" size={32} color={colors.accent} />,
+    icon: <MaterialIcons name="shield" size={32} color="#EA5455" />,
     unlocked: false
   },
   {
     id: 'shield_builder',
     name: 'Shield Builder',
     description: 'Growing the community by helping others stay safe',
-    icon: <MaterialIcons name="group" size={32} color={colors.accent} />,
+    icon: <MaterialIcons name="group" size={32} color="#EA5455" />,
     unlocked: false,
     progress: {
       current: 0,
@@ -41,7 +41,7 @@ const DEFAULT_BADGES: Badge[] = [
     id: 'emergency_sentinel',
     name: 'Emergency Sentinel',
     description: 'Actively contributing to community safety awareness',
-    icon: <MaterialIcons name="notifications" size={32} color={colors.accent} />,
+    icon: <MaterialIcons name="notifications" size={32} color="#EA5455" />,
     unlocked: false,
     progress: {
       current: 0,
@@ -52,7 +52,7 @@ const DEFAULT_BADGES: Badge[] = [
     id: 'evidence_guardian',
     name: 'Evidence Guardian',
     description: 'Helping preserve crucial evidence for justice',
-    icon: <MaterialIcons name="insert-drive-file" size={32} color={colors.accent} />,
+    icon: <MaterialIcons name="insert-drive-file" size={32} color="#EA5455" />,
     unlocked: false,
     progress: {
       current: 0,
@@ -62,6 +62,8 @@ const DEFAULT_BADGES: Badge[] = [
 ];
 
 export default function BadgesScreen() {
+  const { colors, shadows } = useTheme();
+  const styles = getStyles(colors, shadows);
   const [badges, setBadges] = useState<Badge[]>(DEFAULT_BADGES);
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [showUnlockModal, setShowUnlockModal] = useState(false);
@@ -227,7 +229,7 @@ export default function BadgesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, shadows: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.primary,

@@ -8,12 +8,12 @@ import * as SplashScreen from 'expo-splash-screen';
 import EmergencyCallButton from '@/components/EmergencyCallButton';
 import CustomSplashScreen from '@/components/SplashScreen';
 import BiometricLogin from '@/components/BiometricLogin';
-import { colors } from '@/constants/theme';
 import { View, Text } from 'react-native'
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { StealthModeProvider, useStealthMode } from '@/components/StealthModeManager';
 import { BiometricLoginProvider, useBiometricLogin } from '@/components/BiometricLoginProvider';
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { usePanicModeGesture } from '@/hooks/usePanicModeGesture';
 import { PanicModeTripleTap } from '@/components/PanicModeTripleTap';
 
@@ -26,6 +26,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 function AppContent() {
   useFrameworkReady();
   const router = useRouter();
+  const { colors } = useTheme();
   const { user, loading: authLoading } = useAuth();
   const { isLocked, unlock, biometricLoginEnabled, isInitializing } = useBiometricLogin();
   const { isActive: isStealthModeActive } = useStealthMode();
@@ -191,12 +192,14 @@ function AppContent() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <BiometricLoginProvider>
-        <StealthModeProvider>
-          <AppContent />
-        </StealthModeProvider>
-      </BiometricLoginProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <BiometricLoginProvider>
+          <StealthModeProvider>
+            <AppContent />
+          </StealthModeProvider>
+        </BiometricLoginProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
