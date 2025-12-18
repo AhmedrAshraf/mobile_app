@@ -149,6 +149,7 @@ const styles = StyleSheet.create({
   blurContainer: {
     flex: 1,
     backgroundColor: `${colors.secondary}E8`,
+    // backgroundColor: '#C3E9F5',
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
     overflow: 'hidden',

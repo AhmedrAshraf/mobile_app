@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, ActivityIndicator, Platform, RefreshControl } from 'react-native';
-import { radius } from '@/constants/theme';
+import { darkColors, radius } from '@/constants/theme';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useEffect, useState } from 'react';
 import { getNews, NewsItem } from '@/lib/news';
@@ -9,7 +9,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { Image } from 'react-native';
 type Incident = {
   id: string;
   type: string;
@@ -373,13 +373,13 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View style={styles.headerContent}>
             <View style={styles.greetingRow}>
-              <Text style={styles.greeting}>{getGreeting()}</Text>
+              <Text style={styles.tagline}>{getGreeting()}, <Text style={styles.userName}>{firstName} 👋</Text></Text>
               <View style={styles.statusBadge}>
                 <View style={styles.statusDot} />
                 <Text style={styles.statusText}>Protected</Text>
               </View>
             </View>
-            <Text style={styles.userName}>{firstName} 👋</Text>
+            {/* <Text style={styles.userName}>{firstName} 👋</Text> */}
             <Text style={styles.tagline}>{getMotivationalMessage()}</Text>
           </View>
         </View>
@@ -394,15 +394,16 @@ export default function HomeScreen() {
           }}
           activeOpacity={0.9}>
           <LinearGradient
-            colors={[colors.primary, `${colors.primary}CC`]}
+            colors={['#2D4059', `${'#2D4059'}`]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.desistBannerGradient}>
             <View style={styles.desistBannerContent}>
               <View style={styles.desistBannerLeft}>
-                <View style={styles.desistLogoContainer}>
-                  <MaterialIcons name="shield" size={48} color={colors.text.primary} />
-                </View>
+                {/* <View style={styles.desistLogoContainer}> */}
+                  {/* <MaterialIcons name="shield" size={48} color={darkColors.text.primary} /> */}
+                  <Image source={require('@/assets/images/favicon.png')} style={styles.desistLogo} />
+                {/* </View> */}
                 <View style={styles.desistTextContainer}>
                   <Text style={styles.desistBannerTitle}>DESIST!</Text>
                   <Text style={styles.desistBannerSubtitle}>Your Digital Safety Companion</Text>
@@ -410,20 +411,20 @@ export default function HomeScreen() {
                 </View>
               </View>
               <View style={styles.desistBannerRight}>
-                <MaterialIcons name="arrow-forward" size={32} color={colors.text.primary} />
+                <MaterialIcons name="arrow-forward" size={32} color={darkColors.text.primary} />
               </View>
             </View>
             <View style={styles.desistBannerFeatures}>
               <View style={styles.desistFeature}>
-                <MaterialIcons name="lock" size={20} color={colors.text.primary} />
+                <MaterialIcons name="lock" size={20} color={darkColors.text.primary} />
                 <Text style={styles.desistFeatureText}>Secure</Text>
               </View>
               <View style={styles.desistFeature}>
-                <MaterialIcons name="privacy-tip" size={20} color={colors.text.primary} />
+                <MaterialIcons name="privacy-tip" size={20} color={darkColors.text.primary} />
                 <Text style={styles.desistFeatureText}>Private</Text>
               </View>
               <View style={styles.desistFeature}>
-                <MaterialIcons name="verified-user" size={20} color={colors.text.primary} />
+                <MaterialIcons name="verified-user" size={20} color={darkColors.text.primary} />
                 <Text style={styles.desistFeatureText}>Trusted</Text>
               </View>
             </View>
@@ -735,7 +736,8 @@ export default function HomeScreen() {
 const getStyles = (colors: any, shadows: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primary,
+    // backgroundColor: colors.primary,
+    backgroundColor: '#f0f7ff',
   },
   scrollContent: {
     paddingBottom: Platform.OS === 'ios' ? 100 : 80,
@@ -783,7 +785,7 @@ const getStyles = (colors: any, shadows: any) => StyleSheet.create({
     fontFamily: 'Inter-SemiBold',
   },
   userName: {
-    fontSize: 32,
+    fontSize: 18,
     fontWeight: 'bold',
     color: colors.text.primary,
     fontFamily: 'Inter-Bold',
@@ -909,14 +911,14 @@ const getStyles = (colors: any, shadows: any) => StyleSheet.create({
   },
   desistBannerSubtitle: {
     fontSize: 16,
-    color: colors.text.primary,
+    color: darkColors.text.primary,
     opacity: 0.95,
     marginBottom: 4,
     fontFamily: 'Inter-SemiBold',
   },
   desistBannerTagline: {
     fontSize: 13,
-    color: colors.text.primary,
+    color: darkColors.text.primary,
     opacity: 0.85,
     fontFamily: 'Inter-Regular',
   },
@@ -928,7 +930,7 @@ const getStyles = (colors: any, shadows: any) => StyleSheet.create({
     gap: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: `${colors.text.primary}20`,
+    borderTopColor: `${darkColors.text.primary}20`,
   },
   desistFeature: {
     flexDirection: 'row',
@@ -937,7 +939,7 @@ const getStyles = (colors: any, shadows: any) => StyleSheet.create({
   },
   desistFeatureText: {
     fontSize: 13,
-    color: colors.text.primary,
+    color: darkColors.text.primary,
     opacity: 0.9,
     fontFamily: 'Inter-Medium',
   },
@@ -947,7 +949,7 @@ const getStyles = (colors: any, shadows: any) => StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: colors.secondary,
+    backgroundColor: darkColors.secondary,
     borderRadius: radius.lg,
     padding: 16,
     alignItems: 'center',
@@ -964,7 +966,7 @@ const getStyles = (colors: any, shadows: any) => StyleSheet.create({
   statNumber: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: colors.text.primary,
+    color: darkColors.text.primary,
     fontFamily: 'Inter-Bold',
     marginBottom: 4,
   },
@@ -1317,6 +1319,14 @@ const getStyles = (colors: any, shadows: any) => StyleSheet.create({
     fontSize: 14,
     color: colors.accent,
     fontFamily: 'Inter-SemiBold',
+  },
+  desistLogo: {
+    width: 64,
+    height: 64,
+    borderRadius: radius.md,
+    // backgroundColor: `${darkColors.text.primary}20`,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
